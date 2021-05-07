@@ -20,17 +20,24 @@
     const showShuffleQueueButton = true;
 
     const cntxMenu = new Spicetify.ContextMenu.Item(
-        "Play with Queue+",
+        "Add to Queue and shuffle+",
         (uris) => {
+            let next_tracks = Spicetify.Queue.next_tracks;
+            let delimiterIndex = next_tracks.findIndex(
+                (value) => value.uri === "spotify:delimiter"
+            );
+            if(delimiterIndex !== -1) {
+                next_tracks.splice(delimiterIndex);
+            }
             if (uris.length === 1) {
                 fetchListFromUri(uris[0])
-                    .then((list) => playList(shuffle(list)))
+                    .then((list) => setQueue(shuffle(next_tracks.concat(list))))
                     .catch((err) => Spicetify.showNotification(`${err}`));
                 return;
             }
 
             const list = uris.map((uri) => ({ uri }));
-            playList(shuffle(list));
+            setQueue(shuffle(next_tracks.concat(list)));
         },
         (uris) => {
             if (uris.length === 1) {
